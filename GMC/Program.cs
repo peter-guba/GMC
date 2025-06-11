@@ -19,7 +19,6 @@ class Program
 {
     static void Main(string[] args)
     {
-        /**/
         // Generate a tree file.
         if (args[0] == "--generate" || args[0] == "-g")
         {
@@ -125,44 +124,6 @@ class Program
                 DataCruncher.CrunchItAll(bestChoiceFlagPresent, inputPath, outputPath, treeFileName + "_" + numOfIters + "*");
             }
         }
-        // Repartitiontree data based on some criterion (e.g. maximum tree depth).
-        else if (args[0] == "--repartition" || args[0] == "-r")
-        {
-            int argIndex = 1;
-
-            bool bestChoiceFlagPresent = bool.Parse(args[argIndex++]);
-            bool discreet = bool.Parse(args[argIndex++]);
-            List<double> borders = new List<double>();
-            if (!discreet)
-            {
-                if (args[argIndex++] != "[")
-                {
-                    throw new Exception("Boundaries array has to be surrounded by square brackets. Example: [ 1 5 18 ].");
-                }
-
-                string currentArg;
-                while ((currentArg = args[argIndex++]) != "]")
-                {
-                    borders.Add(double.Parse(currentArg));
-                }
-            }
-            int critIndex = int.Parse(args[argIndex++]);
-            int minFileLimit = int.Parse(args[argIndex++]);
-            string inputPath = args[argIndex++];
-            string outputPath = args[argIndex++];
-            string statsDirPath = args[argIndex++];
-
-            DataCruncher.RepartitionAndCrunch(
-                bestChoiceFlagPresent,
-                discreet,
-                borders.ToArray(),
-                critIndex,
-                minFileLimit,
-                inputPath,
-                outputPath,
-                statsDirPath
-                );
-        }
         // Estimate the size of a file generated using the given settings.
         else if (args[0] == "--estimate" || args[0] == "-e")
         {
@@ -217,102 +178,6 @@ class Program
         {
             TreeChecker.CheckTree(args[1]);
         }
-        // Create trajectory files.
-        else if (args[0] == "--trajectorize" || args[0] == "-t")
-        {
-            string sourceFile = args[1];
-            int numOfSimulations = int.Parse(args[2]);
-            int numOfRepeats = int.Parse(args[3]);
-            RewardType rewardToApproximate = AuxiliaryFunctions.GetRewardType(args[4], 0, out _);
-            RewardType rtype = AuxiliaryFunctions.GetRewardType(args[5], 0, out _);
-            string outputPath = args[6];
-
-            // Gets the name of the directory that contains the source file.
-            // (The name of that directory is the category of the file.)
-            string dirName = Path.GetFileName(Path.GetDirectoryName(sourceFile)) + "_";
-
-            for (int r = 0; r < numOfRepeats; ++r)
-            {
-                TrajectoryManager.PrintTrajectories(
-                    sourceFile,
-                    numOfSimulations,
-                    rewardToApproximate,
-                    rtype,
-                    outputPath + "/" + dirName + Path.GetFileNameWithoutExtension(sourceFile) + "_" + numOfSimulations + "_" + args[4] + "_" + (r + 1) + ".txt"
-                    );
-            }
-        }
-        // Process precomputed trajectories using a given algorithm.
-        else if (args[0] == "--processTrajectories" || args[0] == "-p")
-        {
-            string algorithmName = args[1];
-            string trajectoriesFolder = args[2];
-            string outputPath = args[3];
-
-            string dateAndTime = DateTime.Now.ToString("yyyy_MM_dd-HH_mm_ss");
-            Random rand = new Random(Guid.NewGuid().GetHashCode());
-
-            foreach (var trajectoriesFile in Directory.EnumerateFiles(trajectoriesFolder))
-            {
-                // Make sure the created files have the same names as ones which result from
-                // convergence measurements so that they can be crunched properly.
-                string[] nameParts = Path.GetFileName(trajectoriesFile).Split('_');
-
-                string treeCategoryName = "";
-                string treeFileName = "";
-                string numOfIterations = "";
-                string repeatsIndex = "";
-
-                int switcher = 0;
-                for (int i = 0; i < nameParts.Length; ++i)
-                {
-                    if (switcher == 0)
-                    {
-                        if (nameParts[i] == "tree")
-                        {
-                            ++switcher;
-                        }
-                        else
-                        {
-                            treeCategoryName += nameParts[i] + "_";
-                        }
-                    }
-
-                    if (switcher > 0 && switcher <= 7)
-                    {
-                        treeFileName += nameParts[i] + "_";
-                        ++switcher;
-                        continue;
-                    }
-
-                    if (switcher == 8)
-                    {
-                        numOfIterations = nameParts[i];
-                        ++switcher;
-                        ++i;
-                    }
-
-                    if (switcher == 9)
-                    {
-                        ++switcher;
-                        ++i;
-                    }
-
-                    if (switcher == 10)
-                    {
-                        repeatsIndex = nameParts[i].Split('.')[0];
-                    }
-                }
-
-                ISearch algorithm = AuxiliaryFunctions.GetAlgorithm(ExtractArgValues(algorithmName, treeFileName));
-                string outputFileName = treeCategoryName + treeFileName + numOfIterations + "_" + dateAndTime + "_" + repeatsIndex + "_" + rand.Next(10000) + ".txt";
-                TrajectoryManager.ProcessTrajectories(
-                    algorithm,
-                    trajectoriesFile,
-                    outputPath + "/" + outputFileName
-                    );
-            }
-        }
         // Check if the tree specified in a given file is deceptive.
         else if (args[0] == "--deceptionCheck" || args[0] == "-d")
         {
@@ -339,59 +204,9 @@ class Program
 	Runs a given algorithm on the tree specified in the given file for a given number of iterations and repeats the process a given number of times.
 
 
-If you need more detailed descriptions of the commands and their parameters, please take a look at the documentation at ."
+If you need more detailed descriptions of the commands and their parameters, please take a look at the documentation at https://github.com/peter-guba/GMC/tree/master."
             );
         }
-        /**/
-
-        /*/ // --- File size estimation test ---
-        int maxBranchingFactor = 3;
-        int whitePoints = 3;
-        int blackPoints = 3;
-        bool startingPlayer = true;
-        double hitProb = 0.8;
-        int maxDepth = 15;
-
-        DummyPointState origin = new DummyPointState(
-            new DummyPointStateSettings(
-                null,
-                maxBranchingFactor,
-                maxDepth,
-                hitProb
-                ),
-                whitePoints, blackPoints, startingPlayer);
-
-        int nodeSizeEstimate = "X-".Length + origin.ToString().Length + ",0.0000000000000000,1,".Length;
-
-        double fileMeanSizeEstimate = SizeEstimator.EstimateMeanFileSize(
-            maxBranchingFactor,
-            3,
-            origin.GetTPC(),
-            maxDepth,
-            nodeSizeEstimate
-            );
-
-        Console.WriteLine("Mean file size estimate: " + GetSizeInProperUnits(fileMeanSizeEstimate));
-
-        int numOfSamples = 1000;
-
-        double fileSizeSDEstimate = SizeEstimator.EstimateFileSizeStandardDeviation(
-            fileMeanSizeEstimate,
-            numOfSamples,
-            maxBranchingFactor,
-            3,
-            origin.GetTPC(),
-            maxDepth,
-            nodeSizeEstimate
-            );
-
-        Console.WriteLine("File size standard deviation estimate: " + GetSizeInProperUnits(fileSizeSDEstimate));
-        Console.WriteLine(
-            "95% probability file size normal range estimate: " +
-            GetSizeInProperUnits(fileMeanSizeEstimate - 1.96 * fileSizeSDEstimate) + ", " +
-            GetSizeInProperUnits(fileMeanSizeEstimate + 1.96 * fileSizeSDEstimate)
-            );
-        /**/
     }
 
     /// <summary>
