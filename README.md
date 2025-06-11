@@ -1,47 +1,60 @@
 # GMC toolkit
 
-This is a C# command line application for generating random game trees and running MCTS over them. The main project offers the following commands:
+This is a C# command line application for generating random game trees and running MCTS over them.
 
---check, -h [path to tree file]
+
+
+## Table of Contents
+- [Main project commands](#main-project-commands)
+- [Data visualizer script](#data-visualizer-script)
+- [File formats](#file-formats)
+
+
+
+## Main project commands
+
+The main project offers the following commands:
+
+--check, -h [path to tree file]\
 	Checks if a given tree has been generated correctly (i.e. that all the children positions specified in the file lead to valid positions).
 
 
---crunch, -c [--pattern/-p, best choice flag present, regex, input path, output path] / [best choice flag present, number of iterations, tree file name, input path, output path]
-	Computes the mean and variance of data from files that match a given regex. If the --pattern option isn't specified, the regex is constructed to fit a tree with the given name and given number of iterations.
-	- The best choice flag present parameter is a boolean that determines whether the supplied files only contain data about convergence, or also about the performance (an explanation of the structure of output files and the data contain within them can be found in section X).
-	- The input path is a path leading to the folder where all possible input files are stored (the program doesn't go into subfolders)
+--crunch, -c [--pattern/-p, best choice flag present, regex, input path, output path] / [best choice flag present, number of iterations, tree file name, input path, output path]\
+	Computes the mean and variance of data from files that match a given regex. If the --pattern option isn't specified, the regex is constructed to fit a tree with the given name and given number of iterations.\
+	- The best choice flag present parameter is a boolean that determines whether the supplied files only contain data about convergence, or also about the performance (an explanation of the structure of output files and the data contain within them can be found in section X).\
+	- The input path is a path leading to the folder where all possible input files are stored (the program doesn't go into subfolders).\
 	- The output path is a path leading to the output file, including its name.
 
 
---deceptionCheck, -d [file to check]
+--deceptionCheck, -d [file to check]\
 	Checks if the tree stored in the given file is deceptive, i.e. the node with the highest win ratio doesn't have the highest minimax value. The program assumes that more than one child is necessary for this, so it traverses the tree from the root until it finds a node with more than one child.
 
 
---estimate, -e [maximum branching factor, first player's points, second player's points, hit probability, maximum depth, number of samples]
-	!!!THIS COMMAND ISN'T FULLY DEBUGGED YET AND SOMETIMES RETURNS WRONG ESTIMATES!!!
-	Computes estimates of the mean size of trees generated using the given parameters, their standard deviation and 95% confidence interval. All parameters except "number of samples" directly correspond to parameters supplied to the generate command. The seed parameter is left out as this command is supposed to estimate the mean size and standard deviation for trees generated using all possible random seeds.
+--estimate, -e [maximum branching factor, first player's points, second player's points, hit probability, maximum depth, number of samples]\
+	!!!THIS COMMAND ISN'T FULLY DEBUGGED YET AND SOMETIMES RETURNS WRONG ESTIMATES!!!\
+	Computes estimates of the mean size of trees generated using the given parameters, their standard deviation and 95% confidence interval. All parameters except "number of samples" directly correspond to parameters supplied to the generate command. The seed parameter is left out as this command is supposed to estimate the mean size and standard deviation for trees generated using all possible random seeds.\
 	- "Number of samples" is used when computing the standard deviation, as, unlike the mean, this is computed by estimating the size of a number of trees and computing the standard deviation from that. The number of trees to be taken into account is specified by this parameter.
 
 
---generate, -g [maximum branching factor, maximum depth, first player's points, second player's points, hit probability, seed, output path]
+--generate, -g [maximum branching factor, maximum depth, first player's points, second player's points, hit probability, seed, output path]\
 	Randomly generates a tree for a two-player zero-sum game using the given parameters. The generation starts with a root node. The current state of the game is given by the number of points each player has - these are initialised to the values passed through the parameters. Until all the nodes are considered terminal, the program generates a random number of children with the upper bound being the maximum branching factor at the start, but progressively changes to 3 at the last level. For every child, the score of the opponent is decreased with a probability given by the hit probability parameter. If a player reaches zero points, the game is over and the corresponding node is considered terminal, with its minimax score equal to 1 if the starting player won and 0 otherwise. If the maximum depth is reached before then, the node at this depth is also considered terminal and assigned a minimax value of 0.5. Every random value used during the construction of the tree is generated using a standard C# System.Random generator, which gets the seed specified by the user as its parameter. The output path has to contain the name of the output file.
 
 
---help []
+--help []\
     Display a help message.
 
 
---measure, -m [algorithm name, path to tree file, number of iterations, per node, number of repeats, reward type, best only, more than one child necessary, output path]
-	Runs a given algorithm on the tree specified in the given file for a given number of iterations and repeats the process a given number of times. The result of every repetition is one or more files that contain data about the algorithm's convergence and performance at every iteration. An explanation of the file's format and containing data can be found in the section on file formats.
-	- The "per node" parameter is of type boolean and determines whether the specified number of iterations should be applied to every node, or whether it's the number of iterations for the whole algorithm.
-	- "Reward type" specifies the type of reward to which convergence should be measured - currently specified types are minimax values (mm) and win ratio (wr). The latter is the probability that making random moves will lead one to a winning state.
-	- The "best only" parameter is of type boolean and specifies whether data should be gathered for all children of the root node or just for the best one. If set to true, it also means that, besides data on convergence rate, data on whether the best node would be chosen (the node with the highest minimax value and, if there are more such nodes, the one among them that has the highest win ratio) and whether one of the nodes with the highest minimax value would be chosen.
-	- "More than one child necessary" is a boolean that specifies whether the starting node needs to have more than one child. When measuring the performance of MCTS, this is necessary, since the algorithm would otherwise always pick the best node, but the framework can also be used to measure the convergence rate of making random simulations to the win ratio of a node, which doesn't necessitate more than one child. If the parameter is set to true, the algorithm traverses the tree from the root until it find the first node that has more than one child and uses that as the root of the search.
+--measure, -m [algorithm name, path to tree file, number of iterations, per node, number of repeats, reward type, best only, more than one child necessary, output path]\
+	Runs a given algorithm on the tree specified in the given file for a given number of iterations and repeats the process a given number of times. The result of every repetition is one or more files that contain data about the algorithm's convergence and performance at every iteration. An explanation of the file's format and containing data can be found in the section on file formats.\
+	- The "per node" parameter is of type boolean and determines whether the specified number of iterations should be applied to every node, or whether it's the number of iterations for the whole algorithm.\
+	- "Reward type" specifies the type of reward to which convergence should be measured - currently specified types are minimax values (mm) and win ratio (wr). The latter is the probability that making random moves will lead one to a winning state.\
+	- The "best only" parameter is of type boolean and specifies whether data should be gathered for all children of the root node or just for the best one. If set to true, it also means that, besides data on convergence rate, data on whether the best node would be chosen (the node with the highest minimax value and, if there are more such nodes, the one among them that has the highest win ratio) and whether one of the nodes with the highest minimax value would be chosen.\
+	- "More than one child necessary" is a boolean that specifies whether the starting node needs to have more than one child. When measuring the performance of MCTS, this is necessary, since the algorithm would otherwise always pick the best node, but the framework can also be used to measure the convergence rate of making random simulations to the win ratio of a node, which doesn't necessitate more than one child. If the parameter is set to true, the algorithm traverses the tree from the root until it find the first node that has more than one child and uses that as the root of the search.\
 	- The "output path" is specified without the name of the resulting file - that is constructed automatically as the name of the directory containing the tree file + the name of the tree file + the number of iterations + the date and time + the index of the current repetition + a random number between 0 and 10000, all separated by underscores.
 
 
 
-# Data visualizer python script
+## Data visualizer script
 
 This project contains a python file, named data_visualizer.py, for creating plots from the data created by GMC. It contains two methods for this.
 
@@ -79,9 +92,9 @@ arguments:
 
 
 
-# File format specification
+## File formats
 
-Tree files
+### Tree files
 
 The tree files consist mainly of lines specifying the data of different nodes. These have the following format:
 
@@ -91,25 +104,25 @@ These node specifications are separated by two types of separators. '/' is used 
 
 Below is an example of the first three levels of a tree. At the beginning is the root node, marked N for nonterminal (terminal nodes are marked with T). It is followed by both separators and the position spefied at the end of its specification points to the beginning of the next line (line 4). Lines 4 and 5 specify two children of the root node. These are again followed by separators on lines 6 and 7 and then the specifications of their own children.
 
-N-True-True-5-5-0-,0.6253798498083422,0.5,|00000000059
-/
-#
-N-False-False-5-4-1-,0.6185157329006215,0.5,|00000000175
-N-False-False-5-4-1-,0.6322439667160629,0,|00000000287
-/
-#
-N-True-True-4-4-2-,0.5964580768257115,0.5,|00000000556
-N-True-True-5-4-2-,0.6405733889755314,0.5,|00000000837
-/
-N-True-True-4-4-2-,0.4231766999575101,0,|00000000952
-N-True-True-5-4-2-,0.7067996491220235,1,|00000001065
-N-True-True-4-4-2-,0.7028166238110267,1,|00000001399
-N-True-True-4-4-2-,0.5075096721645255,1,|00000001510
-N-True-True-5-4-2-,0.8209171885252289,1,|00000001623
-/
-#
+N-True-True-5-5-0-,0.6253798498083422,0.5,|00000000059\
+/\
+\#\
+N-False-False-5-4-1-,0.6185157329006215,0.5,|00000000175\
+N-False-False-5-4-1-,0.6322439667160629,0,|00000000287\
+/\
+\#\
+N-True-True-4-4-2-,0.5964580768257115,0.5,|00000000556\
+N-True-True-5-4-2-,0.6405733889755314,0.5,|00000000837\
+/\
+N-True-True-4-4-2-,0.4231766999575101,0,|00000000952\
+N-True-True-5-4-2-,0.7067996491220235,1,|00000001065\
+N-True-True-4-4-2-,0.7028166238110267,1,|00000001399\
+N-True-True-4-4-2-,0.5075096721645255,1,|00000001510\
+N-True-True-5-4-2-,0.8209171885252289,1,|00000001623\
+/\
+\#
 
-Data files
+### Data files
 
 Data files are either the results of running tests, or of crunching multiple pre-existing data files. They contain data measured at every iteration of the algorithm separated by commas. Depending on the test parameters, this can be just data on convergence, i.e. every entry is the difference between the algorithm's estimate of a node's true value (either minimax or win ratio), or it can also contain data about whether the algorithm would pick the best node (the one with the highest minimax value and, if there are more, the one which also maximises the win ratio) and whether it would pick any of the nodes with the highest minimax values. In the latter case, these three pieces of data are separated by vertical bars. An example of a couple of data entries can be seen below. The first number indicates whether the algorithm would pick the best node, the second whether it would pick any of the nodes with the highest minimax value and the third its estimate's deviation from the true minimax value.
 
