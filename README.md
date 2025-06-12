@@ -1,13 +1,15 @@
 # GMC toolkit
 
-This is a C# command line application for generating random game trees and running MCTS over them.
+This is a C# command line application for generating random game trees and running MCTS over them. This README contains a description of the projects main methods and capabilities. The parameters of the specific trees we used in our experiments can be found in the tree_parameters file.
 
 
 
 ## Table of Contents
 - [Main project commands](#main-project-commands)
+- [Implemented algorithms] (#implemented-algorithms)
 - [Data visualizer script](#data-visualizer-script)
 - [File formats](#file-formats)
+- [References] (#references)
 
 
 
@@ -46,11 +48,50 @@ The main project offers the following commands:
 
 --measure, -m [algorithm name, path to tree file, number of iterations, per node, number of repeats, reward type, best only, more than one child necessary, output path]\
 	Runs a given algorithm on the tree specified in the given file for a given number of iterations and repeats the process a given number of times. The result of every repetition is one or more files that contain data about the algorithm's convergence and performance at every iteration. An explanation of the file's format and containing data can be found in the section on file formats.\
+	- The names of currently implemented algorithms are mentioned in section [Implemented algorithms] (#implemented-algorithms), specifically the "Command name" field under each algorithm.
 	- The "per node" parameter is of type boolean and determines whether the specified number of iterations should be applied to every node, or whether it's the number of iterations for the whole algorithm.\
 	- "Reward type" specifies the type of reward to which convergence should be measured - currently specified types are minimax values (mm) and win ratio (wr). The latter is the probability that making random moves will lead one to a winning state.\
 	- The "best only" parameter is of type boolean and specifies whether data should be gathered for all children of the root node or just for the best one. If set to true, it also means that, besides data on convergence rate, data on whether the best node would be chosen (the node with the highest minimax value and, if there are more such nodes, the one among them that has the highest win ratio) and whether one of the nodes with the highest minimax value would be chosen.\
 	- "More than one child necessary" is a boolean that specifies whether the starting node needs to have more than one child. When measuring the performance of MCTS, this is necessary, since the algorithm would otherwise always pick the best node, but the framework can also be used to measure the convergence rate of making random simulations to the win ratio of a node, which doesn't necessitate more than one child. If the parameter is set to true, the algorithm traverses the tree from the root until it find the first node that has more than one child and uses that as the root of the search.\
 	- The "output path" is specified without the name of the resulting file - that is constructed automatically as the name of the directory containing the tree file + the name of the tree file + the number of iterations + the date and time + the index of the current repetition + a random number between 0 and 10000, all separated by underscores.
+
+
+
+## Implemented algorithms
+
+The following algorithms are currently included in the project:
+
+MCTS - Standard MCTS implementation. Uses UCB1 as its tree policy, random moves as its default policy and picks the move with the highest mean reward at the end.
+Class: BasicMCTS.cs
+Command string: mcts
+Parameters:
+- The value of the c parameter used in the UCB1 formula (optional, square root of 2 by default)
+
+D-UCB MCTS - An MCTS implementation that uses Discounted UCB (taken from \[1\]) as its tree policy.
+Class: DUCBMCTS.cs
+Command string: ducbmcts
+Parameters:
+- The multiplicative factor used in Discounted UCB.
+- A boolean indicating whether the "long exploration" variant of the algorithm should be used. If set to true, this means that second half of the formula used as the tree policy will be the same as in UCB1, i.e. it will use the standard, non-discounted visit values.
+- The value of the c parameter used in the UCB1 formula (optional, square root of 2 by default)
+
+D-UCB MCTS 2 - The same as D-UCB MCTS, except it also uses discounted value estimates when picking a move at the end of its run.
+Class: DUCBMCTS2.cs
+Command string: ducbmcts2
+Parameters: The same as D-UCB MCTS.
+
+SW-UCB MCTS - An MCTS implementation that uses Sliding window UCB (taken from \[1\]) as its tree policy.
+Class: SWUCBMCTS.cs
+Command string: swucbmcts
+Parameters:
+- The size of the window to be used in the tree policy (i.e. 
+- A boolean indicating whether the "long exploration" variant of the algorithm should be used. If set to true, this means that second half of the formula used as the tree policy will be the same as in UCB1, i.e. it will use the standard, non-discounted visit values.
+- The value of the c parameter used in the UCB1 formula (optional, square root of 2 by default)
+
+SW-UCB MCTS 2 - The same as SW-UCB MCTS, except it also uses only a given window of observed rewards when picking a move at the end of its turn.
+Class: SWUCBMCTS.cs
+Command string: swucbmcts
+Parameters: The same as SW-UCB MCTS.
 
 
 
@@ -127,3 +168,9 @@ N-True-True-5-4-2-,0.8209171885252289,1,|00000001623\
 Data files are either the results of running tests, or of crunching multiple pre-existing data files. They contain data measured at every iteration of the algorithm separated by commas. Depending on the test parameters, this can be just data on convergence, i.e. every entry is the difference between the algorithm's estimate of a node's true value (either minimax or win ratio), or it can also contain data about whether the algorithm would pick the best node (the one with the highest minimax value and, if there are more, the one which also maximises the win ratio) and whether it would pick any of the nodes with the highest minimax values. In the latter case, these three pieces of data are separated by vertical bars. An example of a couple of data entries can be seen below. The first number indicates whether the algorithm would pick the best node, the second whether it would pick any of the nodes with the highest minimax value and the third its estimate's deviation from the true minimax value.
 
 0|0|0.6666666666666667,0|0|0.6,1|1|0.5454545454545454,1|1|0.5416666666666667,1|1|0.5384615384615384
+
+
+
+## References
+
+[1] A. Garivier and E. Moulines. On upper-confidence bound policies for switching bandit problems. In International conference on algorithmic learning theory, pages 174–188, 2011.
