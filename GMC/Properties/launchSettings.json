@@ -2,7 +2,7 @@
   "profiles": {
     "GMC": {
       "commandName": "Project",
-      "commandLineArgs": "-g 3 5 3 3 0.75 123 \"D:\\Harddisk 26.09.2022\\D 2016-09-05\\School\\_Tento Semester\\Diplomové štúdium\\temp\\test_tree.txt\"\r\n"
+      "commandLineArgs": "--help"
     }
   }
 }
