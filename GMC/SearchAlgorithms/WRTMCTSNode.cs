@@ -26,6 +26,12 @@ namespace GMC.SearchAlgorithms
         /// </summary>
         public static int windowSize;
 
+        /// <summary>
+        /// Determines whether the discounted estimates used in Discounted UCB should also
+        /// be used when picking moves.
+        /// </summary>
+        public static bool useWindowedEstimates;
+
         public WRTMCTSNode(TreeNode state, bool team, MCTSNode parent) : base(state, team, parent) { }
 
         public override void UpdateValue(double val)
@@ -69,6 +75,18 @@ namespace GMC.SearchAlgorithms
             else
             {
                 return rewards.GetRange(rewards.Count - windowSize, windowSize);
+            }
+        }
+
+        public override double GetScore()
+        {
+            if (useWindowedEstimates)
+            {
+                return GetWindowedScore();
+            }
+            else
+            {
+                return Value / Visits;
             }
         }
     }

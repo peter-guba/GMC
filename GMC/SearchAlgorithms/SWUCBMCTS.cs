@@ -25,31 +25,34 @@ namespace GMC.SearchAlgorithms
                 string[] parts = specification.Split('_');
                 int window = int.Parse(parts[1]);
                 bool longExplore = bool.Parse(parts[2]);
+                bool useWindowedEstimates = bool.Parse(parts[3]);
 
-                if (parts.Length == 4)
+                if (parts.Length == 5)
                 {
                     double c = double.Parse(parts[parts.Length - 1]);
-                    return new SWUCBMCTS(window, longExplore, c);
+                    return new SWUCBMCTS(window, longExplore, useWindowedEstimates, c);
                 }
                 else
                 {
-                    return new SWUCBMCTS(window, longExplore);
+                    return new SWUCBMCTS(window, longExplore, useWindowedEstimates);
                 }
             }
 
             return null;
         }
 
-        public SWUCBMCTS(int window, bool longExplore)
+        public SWUCBMCTS(int window, bool longExplore, bool useWindowedEstimates)
         {
             WRTMCTSNode.windowSize = window;
             this.longExplore = longExplore;
+            WRTMCTSNode.useWindowedEstimates = useWindowedEstimates;
         }
 
-        public SWUCBMCTS(int window, bool longExplore, double c) : base(c)
+        public SWUCBMCTS(int window, bool longExplore, bool useWindowedEstimates, double c) : base(c)
         {
             WRTMCTSNode.windowSize = window;
             this.longExplore = longExplore;
+            WRTMCTSNode.useWindowedEstimates = useWindowedEstimates;
         }
 
         public override void Initialize(TreeNode initialState)
@@ -107,10 +110,10 @@ namespace GMC.SearchAlgorithms
 
                 foreach (MCTSNode child in n.parent.Children)
                 {
-                    resizedWindow += Math.Min(child.Visits, WRTMCTSNode2.windowSize);
+                    resizedWindow += Math.Min(child.Visits, WRTMCTSNode.windowSize);
                 }
 
-                return rewardsSum / Math.Min(WRTMCTSNode2.windowSize, n.Visits) + c * Math.Sqrt(Math.Log(resizedWindow) / Math.Min(WRTMCTSNode2.windowSize, n.Visits));
+                return rewardsSum / Math.Min(WRTMCTSNode.windowSize, n.Visits) + c * Math.Sqrt(Math.Log(resizedWindow) / Math.Min(WRTMCTSNode.windowSize, n.Visits));
             }
         }
     }

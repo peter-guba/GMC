@@ -26,31 +26,34 @@ namespace GMC.SearchAlgorithms
                 string[] parts = specification.Split('_');
                 double gamma = double.Parse(parts[1]);
                 bool longExplore = bool.Parse(parts[2]);
+                bool useDiscountedEstimates = bool.Parse(parts[3]);
 
-                if (parts.Length == 4)
+                if (parts.Length == 5)
                 {
-                    double c = double.Parse(specification.Split('_')[3]);
-                    return new DUCBMCTS(gamma, longExplore, c);
+                    double c = double.Parse(specification.Split('_')[parts.Length - 1]);
+                    return new DUCBMCTS(gamma, longExplore, useDiscountedEstimates, c);
                 }
                 else
                 {
-                    return new DUCBMCTS(gamma, longExplore);
+                    return new DUCBMCTS(gamma, longExplore, useDiscountedEstimates);
                 }
             }
 
             return null;
         }
 
-        public DUCBMCTS(double gamma, bool longExplore)
+        public DUCBMCTS(double gamma, bool longExplore, bool useDiscountedEstimates)
         {
             DMCTSNode.gamma = gamma;
             this.longExplore = longExplore;
+            DMCTSNode.useDiscountedEstimates = useDiscountedEstimates;
         }
 
-        public DUCBMCTS(double gamma, bool longExplore, double c) : base(c)
+        public DUCBMCTS(double gamma, bool longExplore, bool useDiscountedEstimates, double c) : base(c)
         {
             DMCTSNode.gamma = gamma;
             this.longExplore = longExplore;
+            DMCTSNode.useDiscountedEstimates = useDiscountedEstimates;
         }
 
         public override void Initialize(TreeNode initialState)

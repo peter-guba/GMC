@@ -3,3 +3,16 @@ GMC/bin/
 GMC/obj/
 GMC/SearchAlgorithms/
 GMC/TrajectoryManager.cs
+
+!GMC/SearchAlgorithms/BasicMCTS
+!GMC/SearchAlgorithms/DMCTSNode.cs
+!GMC/SearchAlgorithms/DMCTSNode2.cs
+!GMC/SearchAlgorithms/DUCBMCTS.cs
+!GMC/SearchAlgorithms/DUCBMCTS2.cs
+!GMC/SearchAlgorithms/ISearch.cs
+!GMC/SearchAlgorithms/MCTSNode.cs
+!GMC/SearchAlgorithms/SearchNode.cs
+!GMC/SearchAlgorithms/SWUCBMCTS.cs
+!GMC/SearchAlgorithms/SWUCBMCTS2.cs
+!GMC/SearchAlgorithms/WRTMCTSNode.cs
+!GMC/SearchAlgorithms/WRTMCTSNode2.cs

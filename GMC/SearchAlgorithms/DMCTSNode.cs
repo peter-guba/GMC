@@ -8,8 +8,7 @@ namespace GMC.SearchAlgorithms
 {
     /// <summary>
     /// An MCTS node implementation that multiplies the accumulated reward and number of visits by a discount factor
-    /// every time. Differs from DMCTSNode2 in that it doesn't override the GetScore method, which means that it doesn't
-    /// use its discounted values when picking a move at the end of its run.
+    /// every time.
     /// </summary>
     internal class DMCTSNode : MCTSNode
     {
@@ -17,6 +16,12 @@ namespace GMC.SearchAlgorithms
         /// The multiplicative factor that gets applied to observed rewards.
         /// </summary>
         public static double gamma;
+
+        /// <summary>
+        /// Determines whether the discounted estimates used in Discounted UCB should also
+        /// be used when picking moves.
+        /// </summary>
+        public static bool useDiscountedEstimates;
 
         /// <summary>
         /// The sum of accumulated observed rewards, but each reward gets multiplied by gamma
@@ -63,6 +68,18 @@ namespace GMC.SearchAlgorithms
         {
             // Re-project the discounted values to between 1 and 0 again
             return DiscountedValue / DiscountedVisits;
+        }
+
+        public override double GetScore()
+        {
+            if (useDiscountedEstimates)
+            {
+                return GetDiscountedScore();
+            }
+            else
+            {
+                return Value / Visits;
+            }
         }
     }
 }

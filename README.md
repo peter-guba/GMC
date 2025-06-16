@@ -54,7 +54,7 @@ The main project offers the following commands:
 
 **--measure**, **-m** [algorithm name, path to tree file, number of iterations, per node, number of repeats, reward type, best only, more than one child necessary, output path]\
 	Runs a given algorithm on the tree specified in the given file for a given number of iterations and repeats the process a given number of times. The result of every repetition is one or more files that contain data about the algorithm's convergence and performance at every iteration. An explanation of the file's format and containing data can be found in the section on file formats.\
-	- The names of currently implemented algorithms are mentioned in section [Implemented algorithms] (#implemented-algorithms), specifically the "Command name" field under each algorithm.
+	- The names of currently implemented algorithms are mentioned in section [Implemented algorithms] (#implemented-algorithms), specifically the "Command name" field under each algorithm. The algorithm and its arguments must be supplied as one string separated by underscores (e.g. mcts_0.5 specifies the default MCTS implementation with c set to 0.5).
 	- The "per node" parameter is of type boolean and determines whether the specified number of iterations should be applied to every node, or whether it's the number of iterations for the whole algorithm.\
 	- "Reward type" specifies the type of reward to which convergence should be measured - currently specified types are minimax values (mm) and win ratio (wr). The latter is the probability that making random moves will lead one to a winning state.\
 	- The "best only" parameter is of type boolean and specifies whether data should be gathered for all children of the root node or just for the best one. If set to true, it also means that, besides data on convergence rate, data on whether the best node would be chosen (the node with the highest minimax value and, if there are more such nodes, the one among them that has the highest win ratio) and whether one of the nodes with the highest minimax value would be chosen.\
@@ -70,13 +70,13 @@ The following algorithms are currently included in the project:
 **MCTS** - Standard MCTS implementation. Uses UCB1 as its tree policy, random moves as its default policy and picks the move with the highest mean reward at the end.
 Class: BasicMCTS.cs
 Command string: mcts
-Parameters:
+Arguments:
 - The value of the c parameter used in the UCB1 formula (optional, square root of 2 by default)
 
 **D-UCB MCTS** - An MCTS implementation that uses Discounted UCB (taken from \[1\]) as its tree policy.
 Class: DUCBMCTS.cs
 Command string: ducbmcts
-Parameters:
+Arguments:
 - The multiplicative factor used in Discounted UCB.
 - A boolean indicating whether the "long exploration" variant of the algorithm should be used. If set to true, this means that second half of the formula used as the tree policy will be the same as in UCB1, i.e. it will use the standard, non-discounted visit values.
 - The value of the c parameter used in the UCB1 formula (optional, square root of 2 by default)
@@ -84,12 +84,12 @@ Parameters:
 **D-UCB MCTS 2** - The same as D-UCB MCTS, except it also uses discounted value estimates when picking a move at the end of its run.
 Class: DUCBMCTS2.cs
 Command string: ducbmcts2
-Parameters: The same as D-UCB MCTS.
+Arguments: The same as D-UCB MCTS.
 
 **SW-UCB MCTS** - An MCTS implementation that uses Sliding window UCB (taken from \[1\]) as its tree policy.
 Class: SWUCBMCTS.cs
 Command string: swucbmcts
-Parameters:
+Arguments:
 - The size of the window to be used in the tree policy (i.e. 
 - A boolean indicating whether the "long exploration" variant of the algorithm should be used. If set to true, this means that second half of the formula used as the tree policy will be the same as in UCB1, i.e. it will use the standard, non-discounted visit values.
 - The value of the c parameter used in the UCB1 formula (optional, square root of 2 by default)
@@ -97,7 +97,7 @@ Parameters:
 **SW-UCB MCTS 2** - The same as SW-UCB MCTS, except it also uses only a given window of observed rewards when picking a move at the end of its turn.
 Class: SWUCBMCTS.cs
 Command string: swucbmcts
-Parameters: The same as SW-UCB MCTS.
+Arguments: The same as SW-UCB MCTS.
 
 
 
